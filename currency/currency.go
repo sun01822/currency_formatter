@@ -8,31 +8,19 @@ import (
 	"strings"
 )
 
+// FormatCurrency formats a monetary amount according to the specified currency and format.
+// It handles negative values, applies comma separators to the integer part, and delegates symbol placement.
+// Returns the formatted currency string.
 func FormatCurrency(formatter types.Formatter) string {
-	switch formatter.Currency {
-	case consts.USD:
-		return USDFormat(formatter.Amount, formatter.Format)
-	case consts.MYR:
-		return MYRFormat(formatter.Amount, formatter.Format)
-	default:
-		return fmt.Sprintf("Unsupported currency: %s", formatter.Currency)
-	}
-}
-
-func USDFormat(amount float64, format string) string {
-	return ""
-}
-
-func MYRFormat(amount float64, format string) string {
 	isNegative := false
 
 	// If value is less than 0, return it directly
-	if amount < 0 {
-		amount = math.Abs(amount)
+	if formatter.Amount < 0 {
+		formatter.Amount = math.Abs(formatter.Amount)
 		isNegative = true
 	}
 
-	value := fmt.Sprintf("%.2f", amount)
+	value := fmt.Sprintf("%.2f", formatter.Amount)
 
 	// Split integer and decimal
 	parts := strings.Split(value, ".")
@@ -49,18 +37,55 @@ func MYRFormat(amount float64, format string) string {
 		result.WriteRune(digit)
 	}
 
-	return FormatCurrencyWithSymbol(format, isNegative, result.String(), decPart)
-}
-
-func FormatCurrencyWithSymbol(format string, isNegative bool, intPart, desPart string) string {
-	//RM ###,###,###.## or RM###,###,###.##
-	extractSymbol := extractCurrencySymbol(format)
-
-	if !isNegative {
-		return extractSymbol + intPart + "." + desPart
+	var reqPayload = types.FormatCurrencyWithSymbol{
+		Format:      formatter.Format,
+		IsNegative:  isNegative,
+		Result:      result.String(),
+		IntPart:     result.String(),
+		DecimalPart: decPart,
+		Currency:    formatter.Currency,
 	}
 
-	return "-" + intPart + "." + desPart + extractSymbol
+	return FormatCurrencyWithSymbol(reqPayload)
+}
+
+// FormatCurrencyWithSymbol determines the currency type from the request payload
+// and delegates formatting to the appropriate function (USD or MYR).
+func FormatCurrencyWithSymbol(reqParam types.FormatCurrencyWithSymbol) string {
+	switch reqParam.Currency {
+	case consts.USD:
+		return FormatCurrencyWithSymbolForUSD(reqParam)
+	case consts.MYR:
+		return FormatCurrencyWithSymbolForRM(reqParam)
+	default:
+		return fmt.Sprintf("Unsupported currency: %s", reqParam.Currency)
+	}
+}
+
+// FormatCurrencyWithSymbolForUSD returns a formatted USD currency string.
+// It places the currency symbol before the amount and handles negative values by prefixing with a minus sign.
+func FormatCurrencyWithSymbolForUSD(reqParam types.FormatCurrencyWithSymbol) string {
+	//USD formats: $###,###,###.## or $ ###,###,###.##
+	extractSymbol := extractCurrencySymbol(reqParam.Format)
+
+	if !reqParam.IsNegative {
+		return extractSymbol + reqParam.IntPart + "." + reqParam.DecimalPart
+	}
+
+	return "-" + extractSymbol + reqParam.IntPart + "." + reqParam.DecimalPart
+}
+
+// FormatCurrencyWithSymbolForRM formats Malaysian Ringgit currency values according to the specified format.
+// For positive values, the currency symbol is prefixed; for negative values, the symbol is suffixed after the amount.
+func FormatCurrencyWithSymbolForRM(reqParam types.FormatCurrencyWithSymbol) string {
+	//RM ###,###,###.## or RM###,###,###.##
+	extractSymbol := extractCurrencySymbol(reqParam.Format)
+
+	if !reqParam.IsNegative {
+		return extractSymbol + reqParam.IntPart + "." + reqParam.DecimalPart
+	}
+
+	return "-" + reqParam.IntPart + "." + reqParam.DecimalPart + extractSymbol
 }
 
 func extractCurrencySymbol(format string) string {

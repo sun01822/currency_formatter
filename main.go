@@ -8,7 +8,7 @@ import (
 
 func main() {
 	value := currency.FormatCurrency(types.Formatter{
-		Amount:   1234567.89,
+		Amount:   -1234567.89,
 		Currency: "MYR",
 		Format:   "RM ###,###,###.##",
 	})
