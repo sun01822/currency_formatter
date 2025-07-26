@@ -65,7 +65,7 @@ func FormatCurrencyWithSymbol(reqParam types.FormatCurrencyWithSymbol) string {
 // FormatCurrencyWithSymbolForUSD returns a formatted USD currency string.
 // It places the currency symbol before the amount and handles negative values by prefixing with a minus sign.
 func FormatCurrencyWithSymbolForUSD(reqParam types.FormatCurrencyWithSymbol) string {
-	//USD $###,###,###.## or $###,###,###.##
+	//USD formats: $###,###,###.## or $ ###,###,###.##
 	extractSymbol := extractCurrencySymbol(reqParam.Format)
 
 	if !reqParam.IsNegative {
