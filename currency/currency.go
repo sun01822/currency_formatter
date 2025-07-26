@@ -58,7 +58,7 @@ func FormatCurrencyWithSymbol(reqParam types.FormatCurrencyWithSymbol) string {
 	case consts.MYR:
 		return FormatCurrencyWithSymbolForRM(reqParam)
 	default:
-		return "Unsupported currency"
+		return fmt.Sprintf("Unsupported currency: %s", reqParam.Currency)
 	}
 }
 
