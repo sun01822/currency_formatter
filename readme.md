@@ -1,4 +1,5 @@
 # Currency Formatter
+[![Go Reference](https://pkg.go.dev/badge/github.com/sun01822/currency_formatter/currency.svg)](https://pkg.go.dev/github.com/sun01822/currency_formatter/currency)
 
 A Go library for formatting currency values with custom symbols and formats.
 
