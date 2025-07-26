@@ -57,4 +57,4 @@ Formats the currency amount using the provided formatter.
 
 ## License
 
-MIT
+Apache License 2.0
