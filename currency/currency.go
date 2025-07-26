@@ -58,14 +58,14 @@ func FormatCurrencyWithSymbol(reqParam types.FormatCurrencyWithSymbol) string {
 	case consts.MYR:
 		return FormatCurrencyWithSymbolForRM(reqParam)
 	default:
-		return "Unsupported currency"
+		return fmt.Sprintf("Unsupported currency: %s", reqParam.Currency)
 	}
 }
 
 // FormatCurrencyWithSymbolForUSD returns a formatted USD currency string.
 // It places the currency symbol before the amount and handles negative values by prefixing with a minus sign.
 func FormatCurrencyWithSymbolForUSD(reqParam types.FormatCurrencyWithSymbol) string {
-	//USD $###,###,###.## or $###,###,###.##
+	//USD formats: $###,###,###.## or $ ###,###,###.##
 	extractSymbol := extractCurrencySymbol(reqParam.Format)
 
 	if !reqParam.IsNegative {
